@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="6.0.2-develop.2343" />
-    <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="6.0.2-develop.2343" />
+    <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="6.0.2-develop.2345" />
+    <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="6.0.2-develop.2345" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.12.0" />
 
   </ItemGroup>
