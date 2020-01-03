@@ -26,10 +26,16 @@ namespace ASP.NET.API
             services.AddControllers();
             services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((m, o) =>
             {
+                m.IncludeDiagnosticSourceActivities.Remove("Microsoft.Azure.ServiceBus");
+                m.IncludeDiagnosticSourceActivities.Remove("Microsoft.Azure.EventHubs");
                 m.IncludeDiagnosticSourceActivities.Add("MassTransit");
             });
 
-            services.AddApplicationInsightsTelemetry(Configuration["ApplicationInsightsInstrumentationKey"]);
+            services.AddApplicationInsightsTelemetry(options =>
+            {
+                options.EnableAdaptiveSampling = false;
+                options.InstrumentationKey = Configuration["ApplicationInsightsInstrumentationKey"];
+            });
             services.AddMassTransit(x =>
             {
                 x.AddBus(provider => Bus.Factory.CreateUsingAzureServiceBus(cfg =>
