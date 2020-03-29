@@ -49,6 +49,8 @@ namespace ASP.NET.API
             });
 
             services.AddHostedService<BusService>();
+            
+            services.AddOpenApiDocument(cfg => cfg.PostProcess = d => d.Info.Title = "Sample-ApplicationInsights");
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
@@ -58,6 +60,10 @@ namespace ASP.NET.API
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
             app.UseHttpsRedirection();
             app.UseRouting();
+            
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
