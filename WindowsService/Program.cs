@@ -9,11 +9,16 @@
     using Messaging.Consumers;
     using Messaging.Contracts;
     using Messaging.StateMachines;
+    using Microsoft.ApplicationInsights;
     using Microsoft.ApplicationInsights.DependencyCollector;
+    using Microsoft.ApplicationInsights.Extensibility;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Logging.ApplicationInsights;
+    using Microsoft.Extensions.Options;
+
     internal class Program
     {
         public static void Main(string[] args)
@@ -37,23 +42,23 @@
                        })
                        .ConfigureServices((hostContext, services) =>
                        {
-                           var provider      = services.BuildServiceProvider();
-                           var loggerFactory = provider.GetService<ILoggerFactory>();
-
                            var hostConfig = hostContext.Configuration;
-                           services.AddApplicationInsightsTelemetryWorkerService(options =>
-                           {
-                               options.EnableAdaptiveSampling = false;
-                               options.InstrumentationKey = hostConfig["ApplicationInsightsInstrumentationKey"];
-                           });
-                           services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((m, o) =>
-                           {
-                               m.IncludeDiagnosticSourceActivities.Remove("Microsoft.Azure.ServiceBus");
-                               m.IncludeDiagnosticSourceActivities.Remove("Microsoft.Azure.EventHubs");
-                               m.IncludeDiagnosticSourceActivities.Add("MassTransit");
-                           });
+                           var module = new DependencyTrackingTelemetryModule();
+                           module.IncludeDiagnosticSourceActivities.Add("MassTransit");
 
-                           LogContext.ConfigureCurrentLogContext(loggerFactory);
+                           TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
+                           configuration.InstrumentationKey = "<your instrumentation key>";
+                           configuration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
+                           
+                           module.Initialize(configuration);
+                           
+                           var loggerOptions = new ApplicationInsightsLoggerOptions();
+                           var applicationInsightsLoggerProvider = new ApplicationInsightsLoggerProvider(Options.Create(configuration),
+                                                                                                         Options.Create(loggerOptions));
+                           ILoggerFactory factory = new LoggerFactory();
+                           factory.AddProvider(applicationInsightsLoggerProvider);
+                           LogContext.ConfigureCurrentLogContext(factory);
+                           
                            services.AddMassTransit(x =>
                            {
                                x.AddConsumersFromNamespaceContaining<SubmitOrderConsumer>();
