@@ -5,10 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="6.2.4" />
-    <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="6.2.4" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.13.1" />
-    <PackageReference Include="NSwag.AspNetCore" Version="13.4.2" />
+    <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.0.0-develop.2813" />
+    <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="7.0.0-develop.2813" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.14.0" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.6.1" />
 
   </ItemGroup>
 
