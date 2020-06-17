@@ -47,7 +47,7 @@
                            module.IncludeDiagnosticSourceActivities.Add("MassTransit");
 
                            TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
-                           configuration.InstrumentationKey = "<your instrumentation key>";
+                           configuration.InstrumentationKey = hostConfig["ApplicationInsightsInstrumentationKey"];
                            configuration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
                            
                            module.Initialize(configuration);
