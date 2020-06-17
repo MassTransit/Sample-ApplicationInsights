@@ -48,7 +48,7 @@ namespace ASP.NET.API
                                     {
                                         x.AddBus(provider => Bus.Factory.CreateUsingAzureServiceBus(cfg =>
                                                                                                     {
-                                                                                                        var host = cfg.Host(Configuration["AzureServiceBusConnectionString"],
+                                                                                                        cfg.Host(Configuration["AzureServiceBusConnectionString"],
                                                                                                                             h =>
                                                                                                                             {
                                                                                                                                 h.OperationTimeout = TimeSpan.FromSeconds(30);

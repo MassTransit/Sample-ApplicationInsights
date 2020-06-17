@@ -65,8 +65,7 @@
                                x.AddBus(context => Bus.Factory.CreateUsingAzureServiceBus(
                                                                                           configurator =>
                                                                                           {
-                                                                                              var host =
-                                                                                                  configurator.Host(hostConfig["AzureServiceBusConnectionString"],
+                                                                                              configurator.Host(hostConfig["AzureServiceBusConnectionString"],
                                                                                                            h => { });
 
                                                                                               configurator.ReceiveEndpoint("submit-order", e =>
