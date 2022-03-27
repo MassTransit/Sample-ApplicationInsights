@@ -1,11 +1,10 @@
-﻿namespace Messaging.StateMachines
-{
-    using System;
-    using Automatonymous;
+﻿using System;
+using MassTransit;
 
-    public class OrderState : SagaStateMachineInstance
-    {
-        public Guid CorrelationId { get; set; }
-        public State CurrentState { get; set; }
-    }
+namespace Messaging.StateMachines;
+
+public class OrderState : SagaStateMachineInstance
+{
+    public State CurrentState { get; set; }
+    public Guid CorrelationId { get; set; }
 }

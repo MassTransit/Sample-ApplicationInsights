@@ -1,14 +1,13 @@
-﻿namespace Messaging.Consumers
-{
-    using System.Threading.Tasks;
-    using Contracts;
-    using MassTransit;
+﻿using System.Threading.Tasks;
+using MassTransit;
+using Messaging.Contracts;
 
-    public class OrderSubmittedConsumer : IConsumer<OrderSubmitted>
+namespace Messaging.Consumers;
+
+public class OrderSubmittedConsumer : IConsumer<OrderSubmitted>
+{
+    public Task Consume(ConsumeContext<OrderSubmitted> context)
     {
-        public Task Consume(ConsumeContext<OrderSubmitted> context)
-        {
-            return context.RespondAsync<OrderObserved>(context.Message);
-        }
+        return context.RespondAsync<OrderObserved>(context.Message);
     }
 }

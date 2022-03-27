@@ -1,32 +1,30 @@
-﻿namespace ASP.NET.API.Controllers
+﻿using System.Threading.Tasks;
+using MassTransit;
+using Messaging.Contracts;
+using Microsoft.AspNetCore.Mvc;
+
+namespace ASP.NET.API.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class OrderController : ControllerBase
 {
-    using System;
-    using System.Threading.Tasks;
-    using MassTransit;
-    using Messaging.Contracts;
-    using Microsoft.AspNetCore.Mvc;
+    private readonly IBus _bus;
 
-    [ApiController]
-    [Route("[controller]")]
-    public class OrderController : ControllerBase
+    public OrderController(IBus bus)
     {
-        public OrderController(IBus bus)
-        {
-            _bus = bus;
-        }
+        _bus = bus;
+    }
 
-        private readonly IBus _bus;
-
-        [HttpGet]
-        [Route("")]
-        public async Task<IActionResult> SubmitOrder()
-        {
-            await _bus.Publish<SubmitOrder>(new
-                                            {
-                                                OrderId = InVar.Id
-                                            },
-                                            x => x.ResponseAddress = _bus.Address);
-            return Ok();
-        }
+    [HttpGet]
+    [Route("")]
+    public async Task<IActionResult> SubmitOrder()
+    {
+        await _bus.Publish<SubmitOrder>(new
+            {
+                OrderId = InVar.Id
+            },
+            x => x.ResponseAddress = _bus.Address);
+        return Ok();
     }
 }

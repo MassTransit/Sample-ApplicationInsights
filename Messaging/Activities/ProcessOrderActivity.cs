@@ -1,15 +1,14 @@
-﻿namespace Messaging.Activities
-{
-    using System.Threading.Tasks;
-    using Contracts;
-    using MassTransit.Courier;
+﻿using System.Threading.Tasks;
+using MassTransit;
+using Messaging.Contracts;
 
-    public class ProcessOrderActivity :
-        IExecuteActivity<ProcessOrderArguments>
+namespace Messaging.Activities;
+
+public class ProcessOrderActivity :
+    IExecuteActivity<ProcessOrderArguments>
+{
+    public async Task<ExecutionResult> Execute(ExecuteContext<ProcessOrderArguments> context)
     {
-        public async Task<ExecutionResult> Execute(ExecuteContext<ProcessOrderArguments> context)
-        {
-            return context.Completed();
-        }
+        return context.Completed();
     }
 }

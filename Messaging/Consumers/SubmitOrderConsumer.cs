@@ -1,33 +1,43 @@
-﻿namespace Messaging.Consumers
+﻿using System;
+using System.Threading.Tasks;
+using MassTransit;
+using MassTransit.Courier.Contracts;
+using Messaging.Activities;
+using Messaging.Contracts;
+using Messaging.StateMachines;
+
+namespace Messaging.Consumers;
+
+public class SubmitOrderConsumer : IConsumer<SubmitOrder>
 {
-    using System.Threading.Tasks;
-    using Contracts;
-    using MassTransit;
-    using MassTransit.Context;
-    using MassTransit.Courier;
-    using MassTransit.Courier.Contracts;
+    private readonly ISendEndpointProvider _sendEndpointProvider;
+    private IEndpointNameFormatter _endpointNameFormatter;
 
-    public class SubmitOrderConsumer : IConsumer<SubmitOrder>
+    public SubmitOrderConsumer(ISendEndpointProvider sendEndpointProvider, IEndpointNameFormatter endpointNameFormatter)
     {
-        public Task Consume(ConsumeContext<SubmitOrder> context)
-        {
-            LogContext.Info?.Log("Submitting Order: {OrderId}", context.Message.OrderId);
+        _sendEndpointProvider = sendEndpointProvider;
+        _endpointNameFormatter = endpointNameFormatter;
+    }
 
-            var builder = new RoutingSlipBuilder(NewId.NextGuid());
-            if (!EndpointConvention.TryGetDestinationAddress<ProcessOrderArguments>(out var activityAddress))
-                throw new ConfigurationException("No endpoint address for activity");
+    public async Task Consume(ConsumeContext<SubmitOrder> context)
+    {
+        LogContext.Info?.Log("Submitting Order: {OrderId}", context.Message.OrderId);
 
-            builder.AddActivity("Process", activityAddress);
+        var builder = new RoutingSlipBuilder(NewId.NextGuid());
 
-            if (!EndpointConvention.TryGetDestinationAddress<OrderProcessed>(out var eventAddress))
-                throw new ConfigurationException("No endpoint address for activity");
+        var processEndpoint =
+            new Uri($"queue:{_endpointNameFormatter.ExecuteActivity<ProcessOrderActivity, ProcessOrderArguments>()}");
+        builder.AddActivity("Process", processEndpoint);
 
-            builder.AddSubscription(eventAddress, RoutingSlipEvents.Completed, endpoint =>
-                endpoint.Send<OrderProcessed>(context.Message));
+        var eventAddress =
+            new Uri($"queue:{_endpointNameFormatter.Saga<OrderState>()}");
+        builder.AddActivity("Process", processEndpoint);
 
-            context.Execute(builder.Build());
+        await builder.AddSubscription(eventAddress, RoutingSlipEvents.Completed, endpoint =>
+            endpoint.Send<OrderProcessed>(context.Message));
 
-            return context.Publish<OrderSubmitted>(context.Message, x => x.ResponseAddress = context.ResponseAddress);
-        }
+        await context.Execute(builder.Build());
+
+        await context.Publish<OrderSubmitted>(context.Message, x => x.ResponseAddress = context.ResponseAddress);
     }
 }

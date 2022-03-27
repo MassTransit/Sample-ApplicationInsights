@@ -1,9 +1,8 @@
-﻿namespace Messaging.Contracts
-{
-    using System;
+﻿using System;
 
-    public interface SubmitOrder
-    {
-        Guid OrderId { get; }
-    }
+namespace Messaging.Contracts;
+
+public interface SubmitOrder
+{
+    Guid OrderId { get; }
 }
