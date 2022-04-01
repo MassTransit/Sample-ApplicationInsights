@@ -18,12 +18,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="8.0.1-develop.410" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
-        <PackageReference Include="OpenTelemetry" Version="1.2.0-rc3" />
-        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc9" />
+        <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="8.0.1-develop.413" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0-preview.2.22152.2" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="7.0.0-preview.2.22152.2" />
+        <PackageReference Include="OpenTelemetry" Version="1.2.0-rc4" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc9.1" />
         <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.0.0-beta.3" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.1" />
     </ItemGroup>
 
     <ItemGroup>
