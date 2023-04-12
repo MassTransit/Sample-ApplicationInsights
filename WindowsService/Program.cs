@@ -1,17 +1,12 @@
-﻿using System;
-using Azure.Monitor.OpenTelemetry.Exporter;
+﻿using Azure.Monitor.OpenTelemetry.Exporter;
 using MassTransit;
-using Messaging.Activities;
+using MassTransit.Logging;
+using MassTransit.Monitoring;
 using Messaging.Consumers;
-using Messaging.Contracts;
-using Messaging.StateMachines;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 
 namespace WindowsService;
 
@@ -34,18 +29,26 @@ internal class Program
             {
                 var hostConfig = hostContext.Configuration;
                 
-                services.AddOpenTelemetryTracing(builder =>
+                static void ConfigureResource(ResourceBuilder builder)
                 {
-                    builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
-                            .AddService("SampleService")
-                            .AddTelemetrySdk()
-                            .AddEnvironmentVariableDetector())
-                        .AddSource("MassTransit")
+                    builder
+                        .AddService("SampleService")
+                        .AddTelemetrySdk()
+                        .AddEnvironmentVariableDetector();
+                }
+
+                services.AddOpenTelemetry()
+                    .ConfigureResource(ConfigureResource)
+                    .WithTracing(x => x.AddSource(DiagnosticHeaders.DefaultListenerName)
                         .AddAzureMonitorTraceExporter(o =>
                         {
                             o.ConnectionString = hostConfig["ApplicationInsightsConnectionString"];
-                        });
-                });
+                        }))
+                    .WithMetrics(x => x.AddMeter(InstrumentationOptions.MeterName)
+                        .AddAzureMonitorMetricExporter(o =>
+                        {
+                            o.ConnectionString = hostConfig["ApplicationInsightsConnectionString"];
+                        }));
 
 
                 services.AddSingleton(DefaultEndpointNameFormatter.Instance);
