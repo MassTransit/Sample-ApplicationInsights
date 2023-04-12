@@ -1,12 +1,15 @@
 using System;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using MassTransit;
+using MassTransit.Logging;
+using MassTransit.Monitoring;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -30,30 +33,36 @@ public class Startup
             builder.AddConsole();
             builder.SetMinimumLevel(LogLevel.Trace);
         });
-        
-        services.AddOpenTelemetryTracing(builder =>
+
+        static void ConfigureResource(ResourceBuilder builder)
         {
-            builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
-                    .AddService("SampleAPI")
-                    .AddTelemetrySdk()
-                    .AddEnvironmentVariableDetector())
-                .AddSource("MassTransit")
+            builder
+                .AddService("SampleAPI")
+                .AddTelemetrySdk()
+                .AddEnvironmentVariableDetector();
+        }
+
+        services.AddOpenTelemetry()
+            .ConfigureResource(ConfigureResource)
+            .WithTracing(x => x.AddSource(DiagnosticHeaders.DefaultListenerName)
                 .AddAspNetCoreInstrumentation()
                 .AddAzureMonitorTraceExporter(o =>
                 {
                     o.ConnectionString = Configuration["ApplicationInsightsConnectionString"];
-                });
-        });
+                }))
+            .WithMetrics(x => x.AddMeter(InstrumentationOptions.MeterName)
+                .AddAspNetCoreInstrumentation()
+                .AddAzureMonitorMetricExporter(o =>
+                {
+                    o.ConnectionString = Configuration["ApplicationInsightsConnectionString"];
+                }));
 
         services.AddMassTransit(x =>
         {
-            x.UsingAzureServiceBus((ctx, cfg) => 
+            x.UsingAzureServiceBus((ctx, cfg) =>
             {
                 cfg.Host(Configuration["AzureServiceBusConnectionString"],
-                    h =>
-                    {
-      
-                    });
+                    h => { });
             });
         });
 
@@ -71,9 +80,6 @@ public class Startup
         app.UseOpenApi();
         app.UseSwaggerUi3();
 
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
-        });
+        app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }
 }
