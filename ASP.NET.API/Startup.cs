@@ -78,7 +78,7 @@ public class Startup
         app.UseRouting();
 
         app.UseOpenApi();
-        app.UseSwaggerUi3();
+        app.UseSwaggerUi();
 
         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }
